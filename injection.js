@@ -1,5 +1,5 @@
-CONFIG_OBF
-;const fs = require('fs');
+const config = {CONFIG_OBF};
+const fs = require('fs');
 const path = require('path');
 const {
     BrowserWindow,
